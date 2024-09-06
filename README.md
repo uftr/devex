@@ -81,7 +81,7 @@ provider "aws".default_tags.tags."System-Name" = "test"
 
 > **_NOTE_**: User can edit the right hand values but avoid changing key names in the configuration file, unless change aligns with the module template.
 
-> **_NOTE_**: vdex init can process all valid terraform files with multiple level of hierarchy including all terraform resources.
+> **_NOTE_**: vdex init can process all valid terraform files with multiple level of hierarchy.
 
 ### vdex plan
 

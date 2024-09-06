@@ -65,6 +65,11 @@ func PromptConfig(parcedBlocks *parser.TFBlocks, confPath string, confFile strin
 
 	var userConfig map[string]string = make(map[string]string)
 
+	wsParam := parser.ParamValue{}
+	wsParam.P_replace = true
+	wsParam.P_type = parser.V_STRING
+	wsParam.P_value = "default"
+
 	for k, v := range parcedBlocks.Param {
 		var err error
 		n = 0
@@ -104,6 +109,14 @@ func PromptConfig(parcedBlocks *parser.TFBlocks, confPath string, confFile strin
 		}
 	}
 
+	// Read workspace
+	fmt.Printf("\nworkspace[default=%s]:", wsParam.P_value)
+	n, _ = fmt.Scanln(&mvalue)
+	if n > 0 {
+		wsParam.P_value = strings.TrimSpace(mvalue)
+	}
+	parcedBlocks.Param["workspace"] = wsParam
+
 	for k, v := range userConfig {
 		newParam := parcedBlocks.Param[k]
 		newParam.P_value = v
@@ -112,6 +125,14 @@ func PromptConfig(parcedBlocks *parser.TFBlocks, confPath string, confFile strin
 
 	path := filepath.Join(confPath, strings.ReplaceAll(sysName, "\"", ""))
 	confFFile := filepath.Join(path, confFile)
+
+	// Create confPath if not available
+	if _, err := os.Stat(confPath); os.IsNotExist(err) { // Create Path if not present
+		err = os.Mkdir(confPath, 0755) //create a directory
+		if err != nil {
+			log.Println("Failed to create directory", confPath) //print the error on the console
+		}
+	}
 
 	return confFFile, SaveConfig(parcedBlocks, path, confFile)
 

@@ -1,6 +1,6 @@
 # Generate and Deploy Terraform modules
 
- **_NOTE_**: The package and binary have been tested only on Windows environment
+ **_NOTE_**: The package and binary have been tested on Windows and ubuntu Linux environment
 
 ## Overview
 
@@ -12,18 +12,22 @@ The tool vdex (Vio Developer Experience) simplifies the development process for 
  - Generates the main.tf as per the input (or default) configuration
  - Deploys the terraform resources.
 
-## How to Build
+## How to Install
 
 ### Clone the repo and build locally
 
-git clone https://github.com/uftr/vio
+git clone https://github.com/uftr/vio.git
 
 cd vio
 
 go build
 
 vdex binary will be generated.
-export the image path to PATH environmental variable
+export the image path to the PATH environmental variable
+
+Linux
+export PATH=$PATH:.
+
 Note: for windows the binary is vdex.exe instead of vdex
 
 ### Download the prebuilt binary
@@ -52,9 +56,11 @@ User is shown the default values of the variables. Present <Enter> to keep the d
 Once the input is given, press <Enter> to proceed further.
 If a variable doesn't have a default value and user skips by pressing <Enter>, then user is re-promted 3 times for the input.
 
-> **_NOTE_**: main.tf by deault is expected in the working directory of the user.
+> **_NOTE_**: main.tf by deault is expected in the working directory of the user from where vdex is invoked.
 
-User can directly edit the generated configuration file <src/<SYSTEM-NAME/config.txt> and replace the values for the variables. The configuration files accepts standard terraform comment (# or //) at the start of the any line.
+init will create src/ folder in the current workspace if it doesn't exist.
+
+User can directly edit the generated configuration file <src/<SYSTEM-NAME>/config.txt> and replace the values for the variables. The configuration files accepts standard terraform comment (# or //) at the start of the any line.
 
 Format of the configuration file:
 
@@ -85,14 +91,14 @@ provider "aws".default_tags.tags."System-Name" = "test"
 
 ### vdex plan
 
-Reads the configuration file and generate the main.tf file, which calls the Terraform module and configures the backend. The generated file will be stored in the src/<systems-name>/.cache folder.
-Then, runs the Terraform init and Terraform plan on the generated folder. 
+Reads the configuration file and generate the main.tf file, which calls the Terraform module and configures the backend. The generated file will be stored in the <src/<systems-name>/.cache/main.tf> folder.
+Subsequently, it runs the terraform init and terraform plan on the generated folder. 
 
 If -s option is specified, terraform init is skipped.
 
 ### vdex apply
 
-Reads the configuration file and generate the main.tf file, which calls the Terraform module and configures the backend. The generated file will be stored in the src/<systems-name>/.cache folder.
-Then, runs the Terraform init and Terraform apply on the generated folder.
+Reads the configuration file and generate the main.tf file, which calls the Terraform module and configures the backend. The generated file will be stored in the <src/<systems-name>/.cache/main.tf> folder.
+Subsequently, it runs the Terraform init and Terraform apply on the generated folder.
 
 If -s option is specified, terraform init is skipped.

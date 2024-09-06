@@ -1,0 +1,4 @@
+# This is config file that contains the input values for the REPLACE-ME indicated variables in main.tf
+# Right hand side values can be edited. Please do not edit left hand side names
+provider "aws".default_tags.tags."Team" = "Platform"
+provider "aws".default_tags.tags."System-Name" = "test"

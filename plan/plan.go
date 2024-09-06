@@ -121,7 +121,7 @@ func ProcessConfigFiles(config *cfg.Config) ([]string, error) {
  * Returns
  * error: if any failure
  */
-func VdexTerraformExecute(config *cfg.Config, fileList []string, tfparam string) error {
+func VdexTerraformExecute(config *cfg.Config, fileList []string, tfparam string, tfinit bool) error {
 	log.Printf("\nIn VdexPlanExecute")
 	app := "terraform"
 
@@ -160,8 +160,9 @@ func VdexTerraformExecute(config *cfg.Config, fileList []string, tfparam string)
 		}
 		log.Printf("\ncd the directory to service-team %s", tfPath)
 
-		if tfparam != "" {
+		if tfinit {
 			// execute terraform init command
+			fmt.Println("terraform init...")
 			cmdoutput, err := exec.Command(app, "init").Output()
 
 			if err != nil {

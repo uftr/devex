@@ -1,8 +1,10 @@
 # Generate and Deploy Terraform modules
 
+ **_NOTE_**: The package and binary have been tested only on Windows environment
+
 ## Overview
 
-This repository contains a cli tool (vdevex) that generates terraform main and deploys the desired terraform modules as per the developer needs.
+This repository contains a cli tool (vdex) that generates terraform main and deploys the desired terraform modules as per the developer needs.
 
 ## Purpose
 
@@ -10,13 +12,38 @@ The tool vdex (Vio Developer Experience) simplifies the development process for 
  - Generates the main.tf as per the input (or default) configuration
  - Deploys the terraform resources.
 
+## How to Build
+
+### Clone the repo and build locally
+
+git clone https://github.com/uftr/vio
+
+cd vio
+
+go build
+
+vdex binary will be generated.
+export the image path to PATH environmental variable
+Note: for windows the binary is vdex.exe instead of vdex
+
+### Download the prebuilt binary
+
+Download the binary from the repo https://github.com/uftr/vio
+
 ## Usage
 
-vdex init | plan | apply
+vdex init | plan [-s] | apply [-s]
 
-### vdex
+-s option is an optional argument in plan and apply
 
-Displays usage help
+Note: for windows the binary is vdex.exe instead of vdex
+Dependency: vdex has external dependency on terraform binary to execute plan and apply.
+
+### Help
+Below commands displays the usage help text
+vdex
+vdex -help
+vdex ?
 
 ### vdex init
 
@@ -61,7 +88,11 @@ provider "aws".default_tags.tags."System-Name" = "test"
 Reads the configuration file and generate the main.tf file, which calls the Terraform module and configures the backend. The generated file will be stored in the src/<systems-name>/.cache folder.
 Then, runs the Terraform init and Terraform plan on the generated folder. 
 
+If -s option is specified, terraform init is skipped.
+
 ### vdex apply
 
 Reads the configuration file and generate the main.tf file, which calls the Terraform module and configures the backend. The generated file will be stored in the src/<systems-name>/.cache folder.
-Then, runs the Terraform init and Terraform apply on the generated folder. 
+Then, runs the Terraform init and Terraform apply on the generated folder.
+
+If -s option is specified, terraform init is skipped.

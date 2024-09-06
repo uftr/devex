@@ -12,33 +12,49 @@ import (
 	vplan "vdex/plan"
 )
 
+func printHelp(pgname string) {
+	idx := strings.LastIndex(pgname, string(os.PathSeparator))
+	if idx >= 0 {
+		if idx < len(pgname) {
+			idx++
+			pgname = pgname[idx:]
+		}
+	}
+	fmt.Println("Usage:")
+	fmt.Println(pgname, "init | plan [-s] | apply [-s]")
+	fmt.Println("    init       - takes user input for REPLACE-ME values and stores the config in sys/<SYSTEM-NAME>/")
+	fmt.Println("                 <SYSTEM-NAME> is one of the user input")
+	fmt.Println("    plan  [-s] - generates the main.tf file with the user values in sys/<SYSTEM-NAME>/.cache and executes terraform init & plan")
+	fmt.Println("                 if -s option is passed, terraform init will be skipped")
+	fmt.Println("    apply [-s] - similar plan but terraform apply is executed instead of terraform plan")
+	fmt.Println("                 if -s option is passed, terraform init will be skipped")
+	fmt.Println("    help       - this usage text")
+}
+
 func main() {
 
 	print_help := false
+	apply_tf_init := true
 	total_args := len(os.Args[1:])
 
-	if total_args != 1 {
+	pgname := path.Base(os.Args[0])
+
+	if total_args == 0 || total_args > 2 {
 		print_help = true
 	} else if os.Args[1] == "-help" || os.Args[1] == "--help" || os.Args[1] == "?" || os.Args[1] == "help" {
 		print_help = true
 	}
 
-	if print_help {
-		pgname := path.Base(os.Args[0])
-		idx := strings.LastIndex(pgname, string(os.PathSeparator))
-		if idx >= 0 {
-			if idx < len(pgname) {
-				idx++
-				pgname = pgname[idx:]
-			}
+	if total_args == 2 {
+		if strings.TrimSpace(os.Args[2]) == "-s" {
+			apply_tf_init = false
+		} else {
+			print_help = true
 		}
-		fmt.Println("Usage:")
-		fmt.Println(pgname, "init | plan | apply")
-		fmt.Println("    init    - takes user input for REPLACE-ME values and stores the config in sys/<SYSTEM-NAME>/")
-		fmt.Println("              <SYSTEM-NAME> is one of the user input")
-		fmt.Println("    plan    - generates the main.tf file with the user values in sys/<SYSTEM-NAME>/")
-		fmt.Println("    apply   - executes terraform plan on the generated file")
-		fmt.Println("    help    - this usage text")
+	}
+
+	if print_help {
+		printHelp(pgname)
 		return
 	}
 
@@ -82,7 +98,7 @@ func main() {
 			fmt.Printf("\nplan generation failed, see logs %s\n", logFileLocation)
 		} else {
 			fmt.Printf("\nplan generation Success - generated files %v\n", fileList)
-			vplan.VdexTerraformExecute(&config, fileList, "plan")
+			vplan.VdexTerraformExecute(&config, fileList, "plan", apply_tf_init)
 		}
 	case "apply":
 		fileList, err := vplan.VdexPlanGen(&config)
@@ -90,8 +106,10 @@ func main() {
 			fmt.Printf("\nplan generation failed, see logs %s\n", logFileLocation)
 		} else {
 			fmt.Printf("\nplan generation Success - generated files %v\n", fileList)
-			vplan.VdexTerraformExecute(&config, fileList, "apply")
+			vplan.VdexTerraformExecute(&config, fileList, "apply", apply_tf_init)
 		}
 	default:
+		printHelp(pgname)
+		return
 	}
 }

@@ -125,22 +125,38 @@ Configuration data is stored as series of **(key = value)** pairs, each pair in 
 example, consider the below module template:
 ```
 module "echo" {
+    source = "../"
     foo = 5 // REPLACE-ME
+    bar = "hello" // REPLACE-ME
+    items = ["30","40"] // REPLACE-ME
 }
 
+# comment1
+# comment2
 provider "aws" {
+    region = "us-east-1"
     default_tags {   
         tags = {
+            "Team"        = "REPLACE-ME"
             "System-Name" = "REPLACE-ME"
         } 
     }
+}
+/*
+ * comment
+ */
+
+terraform {
+    backend "local" {}
 }
 ```
 
 The generated configuration looks like below:
 ```
-module "echo".foo = "Platform"
-
+module "echo".foo = 5
+module "echo".bar = "hello"
+module "echo".items = ["30","40"]
+provider "aws".default_tags.tags."Team" = "Platform"
 provider "aws".default_tags.tags."System-Name" = "test"
 
 environment = default

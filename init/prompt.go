@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	cfg "vdex/config"
 	"vdex/parser"
 )
 
@@ -68,7 +69,7 @@ func PromptConfig(parcedBlocks *parser.TFBlocks, confPath string, confFile strin
 	wsParam := parser.ParamValue{}
 	wsParam.P_replace = true
 	wsParam.P_type = parser.V_STRING
-	wsParam.P_value = "default"
+	wsParam.P_value = cfg.WORKSPACE_DEF
 
 	for k, v := range parcedBlocks.Param {
 		var err error
@@ -110,12 +111,12 @@ func PromptConfig(parcedBlocks *parser.TFBlocks, confPath string, confFile strin
 	}
 
 	// Read workspace
-	fmt.Printf("\nworkspace[default=%s]:", wsParam.P_value)
+	fmt.Printf("\n%s(workspace)[default=%s]:", cfg.WORKSPACE_KEY, wsParam.P_value)
 	n, _ = fmt.Scanln(&mvalue)
 	if n > 0 {
 		wsParam.P_value = strings.TrimSpace(mvalue)
 	}
-	parcedBlocks.Param["workspace"] = wsParam
+	parcedBlocks.Param[cfg.WORKSPACE_KEY] = wsParam
 
 	for k, v := range userConfig {
 		newParam := parcedBlocks.Param[k]

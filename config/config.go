@@ -5,6 +5,11 @@ import (
 	"strconv"
 )
 
+const (
+	WORKSPACE_KEY = "environment"
+	WORKSPACE_DEF = "default"
+)
+
 type Config struct {
 	Modfile   string `default:"main.tf"`
 	ConfPath  string `default:"src"`

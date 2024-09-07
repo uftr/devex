@@ -14,11 +14,6 @@ import (
 	parcer "vdex/parser"
 )
 
-const (
-	WORKSPACE_KEY = "workspace"
-	WORKSPACE_DEF = "default"
-)
-
 func ReadConfigFile(config *cfg.Config, teamCfgPath string, teamCfgFile string) (string, error) {
 	var parcedBlocks parcer.TFBlocks
 	parcedBlocks.Init()
@@ -127,13 +122,13 @@ func GetConfigWorkspace(teamCfgFile string) string {
 	log.Println("GetConfigWorkspace", teamCfgFile)
 	if err != nil {
 		log.Println("Failed to open file:", teamCfgFile)
-		return WORKSPACE_DEF
+		return cfg.WORKSPACE_DEF
 	}
 	defer file.Close()
 
 	cfgScanner := bufio.NewScanner(file)
 
-	v := WORKSPACE_DEF
+	v := cfg.WORKSPACE_DEF
 	for cfgScanner.Scan() {
 		text := strings.TrimSpace(cfgScanner.Text())
 		if text == "" || strings.HasPrefix(text, parcer.COMMENT1) || strings.HasPrefix(text, parcer.COMMENT2) || strings.HasPrefix(text, parcer.COMMENT3) {
@@ -144,8 +139,11 @@ func GetConfigWorkspace(teamCfgFile string) string {
 			k := strings.TrimSpace(text[:idx])
 			if idx+1 < len(text) {
 				v = strings.TrimSpace(text[idx+1:])
+				if strings.HasSuffix(v, "\"") {
+					v = strings.Trim(v, "\"")
+				}
 			}
-			if k == WORKSPACE_KEY {
+			if k == cfg.WORKSPACE_KEY {
 				return v
 			}
 		}
@@ -197,36 +195,63 @@ func VdexTerraformExecute(config *cfg.Config, fileList []string, tfparam string,
 		}
 		log.Printf("\ncd the directory to service-team %s", tfPath)
 
-		// Check the workspace
-		curWorkspace := WORKSPACE_DEF
+		// Read the resired workspace
+		reqWorkspace := GetConfigWorkspace(filepath.Join(".."+string(os.PathSeparator), config.ConfFile))
+		reqWSExists := false
+
+		// Check the existing workspaces
+		curWSExists := false
+		curWorkspace := cfg.WORKSPACE_DEF
 		cmdoutput, err := exec.Command(app, "workspace", "list").Output()
 		if err != nil {
-			fmt.Println("terraform workspaces not found")
+			log.Println(err.Error())
+			fmt.Println("No terraform workspaces found")
 		} else {
 			wsLines := strings.Split(string(cmdoutput), "\n")
 			for _, wline := range wsLines {
 				wline = strings.TrimSpace(wline)
 				if strings.Contains(wline, "*") {
+					curWSExists = true
 					curWorkspace = strings.TrimSpace(strings.Trim(wline, "*"))
-					break
+					if curWorkspace == reqWorkspace {
+						reqWSExists = true
+						break
+					}
+				}
+				if wline == reqWorkspace {
+					reqWSExists = true
 				}
 			}
 		}
-		// Read the resired workspace
-		reqWorkspace := GetConfigWorkspace(filepath.Join(".."+string(os.PathSeparator), config.ConfFile))
+		if curWSExists {
+			fmt.Println("Current Workspace", curWorkspace, ", desired Workspace", reqWorkspace)
+		}
+
 		if curWorkspace != reqWorkspace { // create the workspace
 			//terraform [global options] workspace select NAME
-			_, err = exec.Command(app, "-or-create", "workspace", "select", reqWorkspace).Output()
+			if !reqWSExists {
+				log.Println("Creating Workspace", reqWorkspace)
+				fmt.Println("Creating Workspace", reqWorkspace)
+			}
+			cmdoutput, err = exec.Command(app, "workspace", "select", "-or-create", reqWorkspace).Output()
 			if err != nil {
 				log.Println(err.Error())
-				log.Println("Failed to select workspace", reqWorkspace)
-				fmt.Println("Failed to select workspace", reqWorkspace)
+				log.Println(cmdoutput)
+				log.Println("Failed to switch to workspace", reqWorkspace)
+				fmt.Println("workspace", reqWorkspace, "not found")
+				//cmdoutput, err = exec.Command(app, "workspace", "new", reqWorkspace).Output()
+				//if err != nil {
+				//	log.Println(err.Error())
+				//	log.Println(cmdoutput)
+				//	log.Println("Failed to create workspace", reqWorkspace)
+				//	fmt.Println("Failed to create workspace", reqWorkspace, ". Using deafult workspace")
+				//}
 			} else {
 				log.Println("selected workspace", reqWorkspace)
-				fmt.Println("selected workspace", reqWorkspace)
+				fmt.Println("Switched to workspace", reqWorkspace)
 			}
-		} else {
-			fmt.Println("Using workspace", curWorkspace)
+		} else if !curWSExists {
+			fmt.Println("Setting workspace", reqWorkspace)
 		}
 
 		if tfinit {
@@ -240,6 +265,7 @@ func VdexTerraformExecute(config *cfg.Config, fileList []string, tfparam string,
 				log.Println("Failed to execute terraform", "init", "in", tfPath)
 				fmt.Println(err.Error())
 				fmt.Println("Failed to execute terraform", "init", "in", tfPath)
+				fmt.Println("Please check your terraform installation or internet connection")
 			} else {
 				log.Println(string(cmdoutput))
 				log.Println("Successfully executed terraform", "init", "in", tfPath)
@@ -254,7 +280,7 @@ func VdexTerraformExecute(config *cfg.Config, fileList []string, tfparam string,
 		if err != nil {
 			fmt.Println(err.Error())
 			fmt.Println("Failed to execute terraform", tfparam, "in", tfPath)
-			fmt.Println("Please verify validity of the terraform")
+			fmt.Println("Please verify validity of the terraform or network connection")
 			log.Println(err.Error())
 			log.Println("Failed to execute terraform", tfparam, "in", tfPath)
 		} else {

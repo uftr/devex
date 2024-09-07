@@ -78,13 +78,15 @@ vdex init | plan [-s] | apply [-s]
                  executes terraform init & plan        
                 - If -s option is passed, terraform init will be skipped
                 - envName is optional argument and if passed, it is treated as the environment causing it to
-                 process the config file named `<envName>-config.txt`. New workspace named `<envName>` will be used/setup by terraform init and plan.
+                 process the config file named `<envName>-config.txt`.
+                 New workspace named `<envName>` will be setup for terraform init and plan.
 
 -    apply [-s] [envName]
                 - similar plan but terraform apply is executed instead of terraform plan
                 - If -s option is passed, terraform init will be skipped.
                 - envName is optional argument and if passed, it is treated as the environment causing it to
-                 process the config file named `<envName>-config.txt`. New workspace named `<envName>` will be used/setup by terraform init and apply.
+                 process the config file named `<envName>-config.txt`.
+                 New workspace named `<envName>` will be setup for terraform init and apply.
 
 -    help       - this usage text
 ```
@@ -111,9 +113,12 @@ If a variable doesn't have a default value and user skips by pressing `<Enter>`,
 ***init*** will create `src/` folder in the current workspace if it doesn't exist.
 
 > [!CAUTION]
-> User can directly edit the generated configuration file `<src/<SYSTEM-NAME>/config.txt>` and replace the values for the variables. The configuration files accepts standard terraform **_comment (# or //)_** at the start of the any line.
+> User can directly edit the generated configuration file `<src/<SYSTEM-NAME>/config.txt>` and replace the values for the variables.
 
-Format of the configuration file:
+> [!NOTE]
+>The configuration files accepts standard terraform **_comment (# or //)_** at the start of the any line.
+
+- Format of the configuration file:
 
 Configuration data is stored as series of **(key = value)** pairs, each pair in a new line.
 

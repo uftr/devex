@@ -16,11 +16,12 @@ git clone https://github.com/uftr/vio.git
 
 cd vio
 
-To build, use either make or go build & go install
-option 1: 
+To build and install, use either make or (go build & go install)
+
+option 1: vdex binary gets copied to /usr/local/bin/
 make
 
-Option 2:
+Option 2: vdex binary gets copied to GOPATH if exists
 go build
 go install
 
@@ -42,18 +43,27 @@ terraform is required to use this tool. vdex has external dependency on terrafor
 
 ## Usage
 
-vdex init | plan [-s] | apply [-s]
+vdex init [envName] | plan [-s] [envName] | apply [-s] [envName]
+vdex init [envName] | [-s] plan [envName] | [-s] apply [envName]
 
 ### Help
 Usage:
 vdex init | plan [-s] | apply [-s]
-    init       - takes user input for REPLACE-ME values and stores the config in sys/<SYSTEM-NAME>/
-                 <SYSTEM-NAME> is one of the user input
-    plan  [-s] - generates the main.tf file with the user values in sys/<SYSTEM-NAME>/.cache and
+    init  [envName]      - takes user input for REPLACE-ME values and stores the config in sys/<SYSTEM-NAME>/
+                 <SYSTEM-NAME> is one of the user input.
+                 - envName is optional argument and if passed, it is treated as the environment which creates
+                 a distrinct config file for the environment. It generated the file <envName>-config.txt
+    plan  [-s] [envName] - generates the main.tf file with the user values in sys/<SYSTEM-NAME>/.cache and
                  executes terraform init & plan        
-                 if -s option is passed, terraform init will be skipped
-    apply [-s] - similar plan but terraform apply is executed instead of terraform plan
-                 if -s option is passed, terraform init will be skipped
+                 If -s option is passed, terraform init will be skipped
+                 - envName is optional argument and if passed, it is treated as the environment causing it to
+                 process the config file named <envName>-config.txt. New workspace named <envName> will be used
+                 by terraform init and plan.
+    apply [-s] [envName] - similar plan but terraform apply is executed instead of terraform plan
+                 If -s option is passed, terraform init will be skipped.
+                 - envName is optional argument and if passed, it is treated as the environment causing it to
+                 process the config file named <envName>-config.txt. New workspace named <envName> will be used
+                 by terraform init and apply.
     help       - this usage text
 
 Below commands displays the usage help text
@@ -123,16 +133,36 @@ If -s option is specified, terraform init is skipped.
 
 ### Multiple Environments
 
-The configuration supports environment variable to support multiple environments. During init, the user is prompted to enter the desired environment. It is set to default environment and it is optional for user to change it. User can skip setting the value.
+Option 1: Multiple Configuration files - per environment
 
-To maintain multiple environments, run vdex init and change value of this variable or directly edit the configuration file.
+vdex cli supports optional argument to specify the environment in the cli argument itself.
 
-For instances environment can be set to dev, stage, prod etc. The vdex plan and apply commands, creates/maintains the underlying workspaces as per the configured environment.
+vdex init [-s] [envName]
+vdex plan [-s] [envName]
+vdex apply [-s] [envName]
+
+For example:
+  "vdex init dev" results in creation of configuration file name "dev-config.txt".
+  "vdex init prod" results in creation of configuration file name "prod-config.txt".
+
+  vdex plan dev  - processes the dev configuration named "dev-config.txt".
+  vdex plan prod - processes the dev configuration named "prod-config.txt".
+
+The environment name is also stored as one of the config items in the config file.
+
+The vdex plan and apply commands creates/maintains the underlying terraform workspaces as per the configured environment.
 
 If environment is set to prod, then vdex takes care of creating(if does not exist) and switching to the 'prod' workspace. If the 'prod' workspace is already present, then vdex just switches to the workspace.
 
-Multiple Configuration Files
-> **_NOTE_**: Currently, same configuration file present in the system-name folder gets updated by init. In next version, multiple configuration files will be created, distinct for each environment.
+Option 2: single config file - current environment
+
+This option is slight variation of option 1. Here, user need not pass the environment in the cli argument, instead the environment can be set in the configuration file itself.
+
+During init, the user is optionally prompted to enter the desired environment. Initially, it is set to default environment and it is optional for user to change it. User can skip setting the value.
+
+To maintain multiple environments, directly edit environment variable in the configuration file or run vdex init and change value of this variable. In this model, same configuration file (config.txt) present in the system-name folder gets updated by init.
+
+The vdex plan and apply looks at the environmental variable present in the configuration file (config.txt) and sets up (created/swith) the terraform workspaces accprdingly. 
 
 ### Multiple Systems
 

@@ -22,13 +22,22 @@ func printHelp(pgname string) {
 	}
 	fmt.Println("Usage:")
 	fmt.Println(pgname, "init | plan [-s] | apply [-s]")
-	fmt.Println("    init       - takes user input for REPLACE-ME values and stores the config in sys/<SYSTEM-NAME>/")
-	fmt.Println("                 <SYSTEM-NAME> is one of the user input")
-	fmt.Println("    plan  [-s] - generates the main.tf file with the user values in sys/<SYSTEM-NAME>/.cache and executes terraform init & plan")
-	fmt.Println("                 if -s option is passed, terraform init will be skipped")
-	fmt.Println("    apply [-s] - similar plan but terraform apply is executed instead of terraform plan")
-	fmt.Println("                 if -s option is passed, terraform init will be skipped")
-	fmt.Println("    help       - this usage text")
+	fmt.Println("    init [envName] - takes user input for REPLACE-ME values and stores the config in sys/<SYSTEM-NAME>/")
+	fmt.Println("                     <SYSTEM-NAME> is one of the user input")
+	fmt.Println("                   - envName is optional argument and if passed, it is treated as the environment which creates")
+	fmt.Println("                     a distrinct config file for the environment. It generated the file <envName>-config.txt")
+	fmt.Println("    plan [-s] [envName] - generates the main.tf file with the user values in sys/<SYSTEM-NAME>/.cache and")
+	fmt.Println("                     executes terraform init & plan")
+	fmt.Println("                     If -s option is passed, terraform init will be skipped")
+	fmt.Println("                   - envName is optional argument and if passed, it is treated as the environment causing it to")
+	fmt.Println("                     process the config file named <envName>-config.txt. Workspace named <envName> will be setup")
+	fmt.Println("                     by terraform init and plan.")
+	fmt.Println("    apply [-s] [envName]- similar plan but terraform apply is executed instead of terraform plan")
+	fmt.Println("                     If -s option is passed, terraform init will be skipped")
+	fmt.Println("                   - envName is optional argument and if passed, it is treated as the environment causing it to")
+	fmt.Println("                     process the config file named <envName>-config.txt. Workspace named <envName> will be setup")
+	fmt.Println("                     by terraform init and apply.")
+	fmt.Println("    help           - this usage text")
 }
 
 func main() {
@@ -37,7 +46,7 @@ func main() {
 	apply_tf_init := true
 	cmd_start_idx := 1
 	user_cmd := ""
-	//tf_env := "default"
+	user_env := cfg.WORKSPACE_DEF
 	total_args := len(os.Args[1:])
 
 	pgname := path.Base(os.Args[0])
@@ -52,12 +61,19 @@ func main() {
 		if strings.TrimSpace(os.Args[2]) == "-s" {
 			apply_tf_init = false
 			cmd_start_idx = 1
+			if total_args > 2 {
+				user_env = os.Args[3]
+			}
 		} else if strings.TrimSpace(os.Args[1]) == "-s" {
 			apply_tf_init = false
 			cmd_start_idx = 2
+			if total_args > 2 {
+				user_env = os.Args[3]
+			}
 		} else {
-			print_help = true
+			user_env = os.Args[2]
 		}
+
 	}
 
 	if print_help {
@@ -100,32 +116,32 @@ func main() {
 		defer file.Close()
 
 		var saveConfFile string
-		saveConfFile, err = vinit.VdexInit(&config)
+		saveConfFile, err = vinit.VdexInit(&config, user_env)
 		if err != nil {
 			fmt.Printf("\ninit failed, see logs %s\n", logFileLocation)
 		} else {
 			fmt.Printf("\ninit Success - config is saved in %s\n", saveConfFile)
 		}
 	case "plan":
-		fileList, err := vplan.VdexPlanGen(&config)
+		fileList, err := vplan.VdexPlanGen(&config, user_env)
 		if err != nil {
 			fmt.Printf("\nplan generation failed, see logs %s\n", logFileLocation)
 		} else {
 			if len(fileList) > 0 {
 				fmt.Printf("\nplan generation Success - generated files %v\n", fileList)
-				vplan.VdexTerraformExecute(&config, fileList, "plan", apply_tf_init)
+				vplan.VdexTerraformExecute(&config, fileList, "plan", apply_tf_init, user_env)
 			} else {
 				fmt.Printf("\nplan generation skipped - no config file is found, try init \n")
 			}
 		}
 	case "apply":
-		fileList, err := vplan.VdexPlanGen(&config)
+		fileList, err := vplan.VdexPlanGen(&config, user_env)
 		if err != nil {
 			fmt.Printf("\nplan generation failed, see logs %s\n", logFileLocation)
 		} else {
 			if len(fileList) > 0 {
 				fmt.Printf("\nplan generation Success - generated files %v\n", fileList)
-				vplan.VdexTerraformExecute(&config, fileList, "apply", apply_tf_init)
+				vplan.VdexTerraformExecute(&config, fileList, "apply", apply_tf_init, user_env)
 			} else {
 				fmt.Printf("\nplan generation skipped - no config file is found, try init \n")
 			}

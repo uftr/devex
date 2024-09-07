@@ -3,6 +3,7 @@ package config
 import (
 	"reflect"
 	"strconv"
+	"strings"
 )
 
 const (
@@ -24,6 +25,21 @@ func NewConfig() Config {
 	p := Config{}
 	setDefaults(&p)
 	return p
+}
+
+func (cfg *Config) GetConfFile(myenv string) string {
+	if myenv == WORKSPACE_DEF {
+		return cfg.ConfFile
+	}
+	return myenv + "-" + cfg.ConfFile
+}
+
+func GetEnvFromConfFile(myconfFile string) string {
+	idx := strings.Index(myconfFile, "-")
+	if idx > 0 && idx < len(myconfFile) {
+		return myconfFile[idx+1:]
+	}
+	return WORKSPACE_DEF
 }
 
 // Sets the filepath

@@ -50,7 +50,7 @@ func SaveConfig(parcedBlocks *parser.TFBlocks, confPath string, confFileName str
  * string: file location where the config is saved
  * error: if any failure
  */
-func PromptConfig(parcedBlocks *parser.TFBlocks, confPath string, confFile string) (string, error) {
+func PromptConfig(parcedBlocks *parser.TFBlocks, confPath string, myenv string, confFile string) (string, error) {
 	var mvalue, sysName string
 	n := len(parcedBlocks.Param)
 	reader := bufio.NewReader(os.Stdin)
@@ -69,7 +69,7 @@ func PromptConfig(parcedBlocks *parser.TFBlocks, confPath string, confFile strin
 	wsParam := parser.ParamValue{}
 	wsParam.P_replace = true
 	wsParam.P_type = parser.V_STRING
-	wsParam.P_value = cfg.WORKSPACE_DEF
+	wsParam.P_value = myenv
 
 	for k, v := range parcedBlocks.Param {
 		var err error

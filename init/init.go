@@ -13,7 +13,7 @@ import (
  * string: file location where the config is saved
  * error: if any failure
  */
-func VdexInit(config *cfg.Config) (string, error) {
+func VdexInit(config *cfg.Config, myenv string) (string, error) {
 
 	log.Printf("\nIn VdexInit")
 	file, err := os.Open(config.Modfile)
@@ -32,6 +32,6 @@ func VdexInit(config *cfg.Config) (string, error) {
 	}
 
 	//tfbs.Walk(0, config.Tabsize, outlog)
-	return PromptConfig(parcedBlocks, config.ConfPath, config.ConfFile)
+	return PromptConfig(parcedBlocks, config.ConfPath, myenv, config.GetConfFile(myenv))
 
 }

@@ -87,7 +87,7 @@ func ReadConfigFile(config *cfg.Config, teamCfgPath string, teamCfgFile string) 
 	return mainFile, nil
 }
 
-func ProcessConfigFiles(config *cfg.Config) ([]string, error) {
+func ProcessConfigFiles(config *cfg.Config, myenv string) ([]string, error) {
 	var fileList []string
 	confPath := config.ConfPath
 	entries, err := os.ReadDir(confPath)
@@ -103,7 +103,7 @@ func ProcessConfigFiles(config *cfg.Config) ([]string, error) {
 		}
 		//fmt.Println(v.Name())
 
-		teamCfgFile := path.Join(confPath, v.Name(), config.ConfFile)
+		teamCfgFile := path.Join(confPath, v.Name(), config.GetConfFile(myenv))
 		if _, err := os.Stat(teamCfgFile); err == nil {
 			log.Printf("File %s exists\n", teamCfgFile)
 			teamCfgPath := path.Join(confPath, v.Name())
@@ -156,7 +156,7 @@ func GetConfigWorkspace(teamCfgFile string) string {
  * Returns
  * error: if any failure
  */
-func VdexTerraformExecute(config *cfg.Config, fileList []string, tfparam string, tfinit bool) error {
+func VdexTerraformExecute(config *cfg.Config, fileList []string, tfparam string, tfinit bool, myenv string) error {
 	log.Printf("\nIn VdexPlanExecute")
 	app := "terraform"
 
@@ -196,7 +196,7 @@ func VdexTerraformExecute(config *cfg.Config, fileList []string, tfparam string,
 		log.Printf("\ncd the directory to service-team %s", tfPath)
 
 		// Read the resired workspace
-		reqWorkspace := GetConfigWorkspace(filepath.Join(".."+string(os.PathSeparator), config.ConfFile))
+		reqWorkspace := GetConfigWorkspace(filepath.Join(".."+string(os.PathSeparator), config.GetConfFile(myenv)))
 		reqWSExists := false
 
 		// Check the existing workspaces
@@ -238,7 +238,7 @@ func VdexTerraformExecute(config *cfg.Config, fileList []string, tfparam string,
 				log.Println(err.Error())
 				log.Println(cmdoutput)
 				log.Println("Failed to switch to workspace", reqWorkspace)
-				fmt.Println("workspace", reqWorkspace, "not found")
+				fmt.Println("workspace", reqWorkspace, "switch, need terraform init")
 				//cmdoutput, err = exec.Command(app, "workspace", "new", reqWorkspace).Output()
 				//if err != nil {
 				//	log.Println(err.Error())
@@ -305,8 +305,8 @@ func VdexTerraformExecute(config *cfg.Config, fileList []string, tfparam string,
  * list of generated files
  * error: if any failure
  */
-func VdexPlanGen(config *cfg.Config) ([]string, error) {
+func VdexPlanGen(config *cfg.Config, myenv string) ([]string, error) {
 	log.Printf("\nIn VdexPlan")
-	fileList, err := ProcessConfigFiles(config)
+	fileList, err := ProcessConfigFiles(config, myenv)
 	return fileList, err
 }

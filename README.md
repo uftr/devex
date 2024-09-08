@@ -67,28 +67,32 @@ vdex init | plan [-s] | apply [-s]
 ```
 
 ```
--    init  [envName]
-                - takes user input for REPLACE-ME values and stores the config in `sys/<SYSTEM-NAME>/
+-   init  [envName]
+                - Takes user input for REPLACE-ME values and stores the config in `sys/<SYSTEM-NAME>/`.
                  <SYSTEM-NAME>` is one of the user input.
                 - envName is optional argument and if passed, it is treated as the environment which creates
                  a distrinct config file for the environment. It generated the file `<envName>-config.txt`
 
--    plan  [-s] [envName] 
-                - generates the main.tf file with the user values in `sys/<SYSTEM-NAME>/.cache` and
-                 executes terraform init & plan        
-                - If -s option is passed, terraform init will be skipped
-                - envName is optional argument and if passed, it is treated as the environment causing it to
-                 process the config file named `<envName>-config.txt`.
+-   plan  [-s] [envName] 
+                - Generates the main.tf (in `sys/<SYSTEM-NAME>/.cache`) by replacing the variable values
+                  with the user provided values and executes `terraform init` & `terraform plan`        
+                - If -s option is passed, `terraform init` will be skipped (`terraform plan` is performed)
+                - envName is optional argument and if passed, it is treated as the target environment causing
+                 it to process the config file named `<envName>-config.txt`.
                  New workspace named `<envName>` will be setup for terraform init and plan.
 
--    apply [-s] [envName]
+-   apply [-s] [envName]
                 - similar plan but terraform apply is executed instead of terraform plan
-                - If -s option is passed, terraform init will be skipped.
-                - envName is optional argument and if passed, it is treated as the environment causing it to
-                 process the config file named `<envName>-config.txt`.
+                - If -s option is passed, `terraform init` will be skipped (`terraform plan` is performed)
+                - envName is optional argument and if passed, it is treated as the target environment causing
+                 it to process the config file named `<envName>-config.txt`.
                  New workspace named `<envName>` will be setup for terraform init and apply.
 
--    help       - this usage text
+-   list [envName]
+                - Lists out the user configured system-names and the list of environments for each system
+                - envName is optional argument and if passed, filter gets applied on the environments
+
+-   help        - this usage text
 ```
 
 Below commands displays the usage help text
@@ -194,6 +198,7 @@ vdex cli supports optional argument to specify the environment in the cli argume
 vdex init [-s] [envName]
 vdex plan [-s] [envName]
 vdex apply [-s] [envName]
+vdex list [envName]
 ```
 
 For example:
@@ -230,3 +235,15 @@ When user configures `<system-name>` value during init, this value is used by pl
 If user gives `system-name` as "ci", folder `"sys/ci"` gets created. In next init run, if user gives `system-name` as "cd", then  folder `"sys/cd"` gets created.
 
 When plan and apply are executed, all system folders under "sys/" gets processed. In this scenario, both the config files `"sys/ci/config.txt"` & `"sys/cd/config.txt"` gets processed.
+
+### system summary
+
+vdex list command prints the summary of the configured system and the associated environment details.
+This is helpful to quickly view list of environments or systems in the current repository.
+
+For example:
+```
+  "vdex list" displays environments configured for each the system-names.
+
+  "vdex list prod" displays prod environments configured for each the system-names.
+```

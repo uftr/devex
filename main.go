@@ -9,6 +9,7 @@ import (
 	"strings"
 	cfg "vdex/config"
 	vinit "vdex/init"
+	vlist "vdex/list"
 	vplan "vdex/plan"
 )
 
@@ -21,22 +22,25 @@ func printHelp(pgname string) {
 		}
 	}
 	fmt.Println("Usage:")
-	fmt.Println(pgname, "init | plan [-s] | apply [-s]")
-	fmt.Println("    init [envName] - takes user input for REPLACE-ME values and stores the config in sys/<SYSTEM-NAME>/")
-	fmt.Println("                     <SYSTEM-NAME> is one of the user input")
+	fmt.Println(pgname, "init | plan [-s] | apply [-s] | list")
+	fmt.Println("    init [envName] - Takes user input for REPLACE-ME values found in main.tf and stores the config in")
+	fmt.Println("                     sys/<SYSTEM-NAME>/, <SYSTEM-NAME> is one of the user input")
 	fmt.Println("                   - envName is optional argument and if passed, it is treated as the environment which creates")
 	fmt.Println("                     a distrinct config file for the environment. It generated the file <envName>-config.txt")
-	fmt.Println("    plan [-s] [envName] - generates the main.tf file with the user values in sys/<SYSTEM-NAME>/.cache and")
-	fmt.Println("                     executes terraform init & plan")
-	fmt.Println("                     If -s option is passed, terraform init will be skipped")
-	fmt.Println("                   - envName is optional argument and if passed, it is treated as the environment causing it to")
-	fmt.Println("                     process the config file named <envName>-config.txt. Workspace named <envName> will be setup")
-	fmt.Println("                     by terraform init and plan.")
+	fmt.Println("")
+	fmt.Println("    plan [-s] [envName] - Generates the main.tf (in sys/<SYSTEM-NAME>/.cache) by replacing the")
+	fmt.Println("                     variable values with the user provided values and executes terraform init & plan")
+	fmt.Println("                     If -s option is passed, terraform init is skipped but plan is executed")
+	fmt.Println("                   - envName is optional argument and if passed, it is treated as the target environment causing it to")
+	fmt.Println("                     process the config file named <envName>-config.txt. The Workspace named <envName> gets created")
+	fmt.Println("                     during terraform init and terraform plan.")
+	fmt.Println("")
 	fmt.Println("    apply [-s] [envName]- similar plan but terraform apply is executed instead of terraform plan")
-	fmt.Println("                     If -s option is passed, terraform init will be skipped")
-	fmt.Println("                   - envName is optional argument and if passed, it is treated as the environment causing it to")
-	fmt.Println("                     process the config file named <envName>-config.txt. Workspace named <envName> will be setup")
-	fmt.Println("                     by terraform init and apply.")
+	fmt.Println("                     otherwise, rest of the behaviour is same as plan.")
+	fmt.Println("")
+	fmt.Println("    list [envName] - Lists out the user configured system-names and the environments")
+	fmt.Println("                   - envName is optional argument and if passed, filter gets applied on the environments")
+	fmt.Println("")
 	fmt.Println("    help           - this usage text")
 }
 
@@ -146,6 +150,8 @@ func main() {
 				fmt.Printf("\nplan generation skipped - no config file is found, try init \n")
 			}
 		}
+	case "list":
+		vlist.ListSystems(&config, user_env)
 	default:
 		printHelp(pgname)
 		return

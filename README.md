@@ -13,9 +13,9 @@ The tool vdex (Cloud Developer Experience) simplifies the development process fo
 ### Clone the repo and build locally
 
 ```
-git clone https://github.com/uftr/vio.git
+git clone https://github.com/uftr/devex.git
 
-cd vio
+cd devex
 ```
 
 To build and install, use either make or (go build & go install)

@@ -13,6 +13,7 @@ import (
 	vplan "vdex/plan"
 )
 
+// Prints the Help text
 func printHelp(pgname string) {
 	idx := strings.LastIndex(pgname, string(os.PathSeparator))
 	if idx >= 0 {
@@ -46,6 +47,7 @@ func printHelp(pgname string) {
 
 func main() {
 
+	// default values
 	print_help := false
 	apply_tf_init := true
 	cmd_start_idx := 1
@@ -75,6 +77,7 @@ func main() {
 				user_env = os.Args[3]
 			}
 		} else {
+			cmd_start_idx = 1
 			user_env = os.Args[2]
 		}
 
@@ -108,7 +111,7 @@ func main() {
 	log.SetOutput(logFile)
 
 	switch user_cmd {
-	case "init":
+	case "init": // handle init command
 
 		file, err := os.Open(config.Modfile)
 		if err != nil {
@@ -126,7 +129,7 @@ func main() {
 		} else {
 			fmt.Printf("\ninit Success - config is saved in %s\n", saveConfFile)
 		}
-	case "plan":
+	case "plan": // handle plan command
 		fileList, err := vplan.VdexPlanGen(&config, user_env)
 		if err != nil {
 			fmt.Printf("\nplan generation failed, see logs %s\n", logFileLocation)
@@ -138,7 +141,7 @@ func main() {
 				fmt.Printf("\nplan generation skipped - no config file is found, try init \n")
 			}
 		}
-	case "apply":
+	case "apply": // handle apply command
 		fileList, err := vplan.VdexPlanGen(&config, user_env)
 		if err != nil {
 			fmt.Printf("\nplan generation failed, see logs %s\n", logFileLocation)

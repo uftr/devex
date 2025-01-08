@@ -11,6 +11,7 @@ import (
 	plan "vdex/plan"
 )
 
+// Prints list of workspaces present
 func ListWorkSpaces() {
 	app := "terraform"
 	cmdoutput, err := exec.Command(app, "workspace", "list").Output()
@@ -19,6 +20,7 @@ func ListWorkSpaces() {
 	}
 }
 
+// Prints list of systems present
 func ListSystems(config *cfg.Config, myenv string) {
 	//var fileList []string
 	confPath := config.ConfPath

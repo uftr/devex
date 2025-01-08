@@ -57,6 +57,7 @@ func (cfg *Config) SetTabSize(s int) {
 	cfg.Tabsize = s
 }
 
+// Sets Default values of the config object
 func setDefaults(p *Config) {
 	// Iterate over the fields of the Person struct using reflection
 	// and set the default value for each field if the field is not provided

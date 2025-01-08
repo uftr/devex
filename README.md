@@ -4,7 +4,7 @@
 
 This repository contains a cli tool (vdex) that generates terraform main and deploys the desired terraform modules as per the developer needs.
 
-The tool vdex (Vio Developer Experience) simplifies the development process for the terraform module users by performing below activities:
+The tool vdex (Cloud Developer Experience) simplifies the development process for the terraform module users by performing below activities:
  - Generates the main.tf as per the input (or default) configuration
  - Deploys the terraform resources.
 
@@ -46,7 +46,7 @@ Note: for windows the binary is vdex.exe instead of vdex
 
 ### Download the prebuilt binary
 
-Download the binary from the repo https://github.com/uftr/vio/
+Download the binary from the repo https://github.com/uftr/
 
 ### Dependency
 

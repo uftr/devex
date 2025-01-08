@@ -1,12 +1,16 @@
 # Generate and Deploy Terraform modules
 
 ## Description
+The purpose of the project is to simplify the lives of Terraform module users. Developers often use existing Terraform modules, set the desired variables, and create the final Terraform main file.
 
-This repository contains a cli tool (vdex) that generates terraform main and deploys the desired terraform modules as per the developer needs.
+The application developers need to maintain the terraform files, as well as ensure all of the relevant variables are set correctly.
+This tool simplifies the terraform module configuration and deployment by automating the generation of terraform module files as well as deployment by using a single template file.
 
-The tool vdex (Cloud Developer Experience) simplifies the development process for the terraform module users by performing below activities:
- - Generates the main.tf as per the input (or default) configuration
- - Deploys the terraform resources.
+This repository contains a cli tool (vdex) that generates the terraform main and deploys the desired terraform as per the developer's needs.
+
+The tool vdex (Cloud Developer Experience) simplifies the development process for the terraform module users by performing the following activities:
+ - Generates the main.tf as per the input (or default) configuration and the pre-supplied terraform template (main.tf)
+ - Deploys the terraform resources.
 
 ## How to Install
 
@@ -71,13 +75,13 @@ vdex init | plan [-s] | apply [-s]
                 - Takes user input for REPLACE-ME values and stores the config in `sys/<SYSTEM-NAME>/`.
                  <SYSTEM-NAME>` is one of the user input.
                 - envName is optional argument and if passed, it is treated as the environment which creates
-                 a distrinct config file for the environment. It generated the file `<envName>-config.txt`
+                 a distinct config file for the workspace. It generated the file `<envName>-config.txt`
 
 -   plan  [-s] [envName] 
                 - Generates the main.tf (in `sys/<SYSTEM-NAME>/.cache`) by replacing the variable values
                   with the user provided values and executes `terraform init` & `terraform plan`        
                 - If -s option is passed, `terraform init` will be skipped (`terraform plan` is performed)
-                - envName is optional argument and if passed, it is treated as the target environment causing
+                - envName is optional argument and if passed, it is treated as the target environment/workspace causing
                  it to process the config file named `<envName>-config.txt`.
                  New workspace named `<envName>` will be setup for terraform init and plan.
 

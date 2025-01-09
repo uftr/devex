@@ -1,8 +1,8 @@
 module "echo" {
     source = "../"
-#    foo = 5 // REPLACE-ME
-#    bar = "hello" // REPLACE-ME
-#    items = ["30","40"] // REPLACE-ME
+    foo = 5 // REPLACE-ME
+    bar = "hello" // REPLACE-ME
+    items = ["30","40"] // REPLACE-ME
 }
 
 # test1

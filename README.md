@@ -3,13 +3,13 @@
 ## Description
 The purpose of the project is to simplify the lives of Terraform module users. Developers often use existing Terraform modules, set the desired variables, and create the final Terraform main file.
 
-The application developers need to maintain the terraform files, as well as ensure all of the relevant variables are set correctly.
-This tool simplifies the terraform module configuration and deployment by automating the generation of terraform module files as well as deployment by using a single template file.
+The application developers need to maintain the terraform files along with the environment, as well as ensure all of the relevant variables are set correctly.
+This tool simplifies the terraform module configuration and deployment by automating the generation of terraform module files by using a single template file. The module template files contains terraform code with variables that needs to be initialized with values marked with REPLACE-ME comment. This tool explicitly prompts the user to provide values for such as variables and generates a final terraform main.tf and maintains it onbehalf of the developer. 
 
 This repository contains a cli tool (vdex) that generates the terraform main and deploys the desired terraform as per the developer's needs.
 
 The tool vdex (Cloud Developer Experience) simplifies the development process for the terraform module users by performing the following activities:
- - Generates the main.tf as per the input (or default) configuration and the pre-supplied terraform template (main.tf)
+ - Generates the final module tf file as per the input (or default) configuration and the pre-supplied terraform template (main.tf)
  - Deploys the terraform resources.
 
 ## How to Install
